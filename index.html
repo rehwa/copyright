@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>결과 공유</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* 이전 스타일 유지 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .result-box {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 20px 0;
+            word-break: break-all;
+        }
+
+        .button-group {
+            display: grid;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        @media (min-width: 768px) {
+            .button-group {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            color: white;
+        }
+
+        .copy-btn {
+            background-color: #228be6;
+        }
+
+        .copy-btn:hover {
+            background-color: #1c7ed6;
+        }
+
+        .save-btn {
+            background-color: #40c057;
+        }
+
+        .save-btn:hover {
+            background-color: #37b24d;
+        }
+
+        .share-btn {
+            background-color: #7950f2;
+            grid-column: 1 / -1;
+        }
+
+        .share-btn:hover {
+            background-color: #6741d9;
+        }
+
+        .help-text {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .success {
+            background-color: #37b24d;
+        }
+
+        @media (min-width: 768px) {
+            .share-btn {
+                grid-column: auto;
+            }
+            .button-group {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        /* 모바일에서만 공유 버튼 표시 */
+        @media (min-width: 768px) {
+            .mobile-only {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>결과 공유</h1>
+        <div id="result" class="result-box">
+            LENA Academy & Curated by JWF © 2025 JWF. All rights reserved.
+        </div>
+        <div class="button-group">
+            <button onclick="copyText()" class="copy-btn" id="copyBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                텍스트 복사
+            </button>
+            <button onclick="saveImage()" class="save-btn" id="saveBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                이미지 저장
+            </button>
+            <button onclick="shareContent()" class="share-btn" id="shareBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="18" cy="5" r="3"></circle>
+                    <circle cx="6" cy="12" r="3"></circle>
+                    <circle cx="18" cy="19" r="3"></circle>
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
+                공유하기
+            </button>
+        </div>
+        <div class="help-text">
+            <h3>사용 방법</h3>
+            <p>• 텍스트 복사: 결과를 클립보드에 복사합니다</p>
+            <p>• 이미지 저장: 결과를 이미지로 저장합니다</p>
+            <p>• 공유하기: 카카오톡 등 다양한 앱으로 공유합니다</p>
+        </div>
+    </div>
+
+    <script>
+        // 복사 기능
+        function copyText() {
+            const text = document.getElementById('result').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                showSuccess('copyBtn', '복사완료!', '텍스트 복사');
+            });
+        }
+
+        // 이미지 저장 기능
+        function saveImage() {
+            const element = document.getElementById('result');
+            html2canvas(element).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'result.png';
+                link.href = canvas.toDataURL();
+                link.click();
+                showSuccess('saveBtn', '저장완료!', '이미지 저장');
+            });
+        }
+
+        // 공유 기능
+        async function shareContent() {
+            const text = document.getElementById('result').innerText;
+            const element = document.getElementById('result');
+            
+            try {
+                const canvas = await html2canvas(element);
+                canvas.toBlob(async (blob) => {
+                    const files = [new File([blob], 'result.png', { type: 'image/png' })];
+                    
+                    if (navigator.share) {
+                        try {
+                            await navigator.share({
+                                text: text,
+                                files: files
+                            });
+                            showSuccess('shareBtn', '공유완료!', '공유하기');
+                        } catch (error) {
+                            // 이미지 공유가 실패하면 텍스트만 공유 시도
+                            try {
+                                await navigator.share({
+                                    text: text
+                                });
+                                showSuccess('shareBtn', '공유완료!', '공유하기');
+                            } catch (error) {
+                                console.error('공유 실패:', error);
+                                // 공유가 실패하면 복사로 폴백
+                                copyText();
+                            }
+                        }
+                    } else {
+                        // Web Share API를 지원하지 않으면 복사로 폴백
+                        copyText();
+                    }
+                });
+            } catch (error) {
+                console.error('이미지 생성 실패:', error);
+                // 이미지 생성이 실패하면 텍스트만 공유 시도
+                if (navigator.share) {
+                    try {
+                        await navigator.share({
+                            text: text
+                        });
+                        showSuccess('shareBtn', '공유완료!', '공유하기');
+                    } catch (error) {
+                        console.error('공유 실패:', error);
+                        copyText();
+                    }
+                } else {
+                    copyText();
+                }
+            }
+        }
+
+        // 성공 표시 함수
+        function showSuccess(btnId, successText, originalText) {
+            const btn = document.getElementById(btnId);
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = `
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                ${successText}
+            `;
+            btn.classList.add('success');
+            setTimeout(() => {
+                btn.innerHTML = originalHtml;
+                btn.classList.remove('success');
+            }, 2000);
+        }
+
+        // 모바일 기기 체크
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        // 페이지 로드 시 모바일 체크
+        window.onload = function() {
+            const shareBtn = document.getElementById('shareBtn');
+            if (!navigator.share || !isMobile()) {
+                shareBtn.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
